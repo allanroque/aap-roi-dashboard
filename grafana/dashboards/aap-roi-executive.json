@@ -1,0 +1,2093 @@
+{
+  "uid": "aap-roi-executive",
+  "title": "AAP — ROI Executivo",
+  "description": "Visão executiva de ROI e economia das automações do Ansible Automation Platform (2.5/2.7), por time, domínio, criticidade e ambiente. Fonte: banco do Automation Controller (leitura direta).",
+  "tags": [
+    "aap",
+    "automation",
+    "roi",
+    "executive",
+    "finops"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "5m",
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "6h",
+      "12h",
+      "1d"
+    ]
+  },
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "type": "dashboard",
+        "name": "Annotations & Alerts",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        }
+      }
+    ]
+  },
+  "templating": {
+    "list": [
+      {
+        "type": "textbox",
+        "name": "employee_cost_per_minute",
+        "label": "💰 Custo Padrão (R$/min)",
+        "query": "2.50",
+        "current": {
+          "text": "2.50",
+          "value": "2.50"
+        },
+        "description": "Custo/min de fallback — usado quando o time não tem taxa específica abaixo.",
+        "hide": 0,
+        "skipUrlSync": false,
+        "options": [
+          {
+            "text": "2.50",
+            "value": "2.50",
+            "selected": true
+          }
+        ]
+      },
+      {
+        "type": "textbox",
+        "name": "custo_por_time",
+        "label": "Custo/min por time (time=valor,...)",
+        "query": "platform=2.50,seguranca=3.00,operacoes=2.20,devops=2.80,sre=3.20,cloud=3.00,network=2.60,dba=3.10",
+        "current": {
+          "text": "platform=2.50,seguranca=3.00,operacoes=2.20,devops=2.80,sre=3.20,cloud=3.00,network=2.60,dba=3.10",
+          "value": "platform=2.50,seguranca=3.00,operacoes=2.20,devops=2.80,sre=3.20,cloud=3.00,network=2.60,dba=3.10"
+        },
+        "description": "Custo por minuto de trabalho manual por valor da label time:. Formato: platform=2.50,seguranca=3.00. Times ausentes usam employee_cost_per_minute.",
+        "hide": 0,
+        "skipUrlSync": false
+      },
+      {
+        "type": "textbox",
+        "name": "aap_cost_per_minute",
+        "label": "⚙️ Custo AAP (R$/min)",
+        "query": "0.10",
+        "current": {
+          "text": "0.10",
+          "value": "0.10"
+        },
+        "description": "Custo de execução do AAP por minuto (R$).",
+        "hide": 0,
+        "skipUrlSync": false,
+        "options": [
+          {
+            "text": "0.10",
+            "value": "0.10",
+            "selected": true
+          }
+        ]
+      },
+      {
+        "type": "textbox",
+        "name": "manual_time_per_host_minutes",
+        "label": "⏱️ Tempo Manual/Host (min)",
+        "query": "15",
+        "current": {
+          "text": "15",
+          "value": "15"
+        },
+        "description": "Tempo médio para executar a mesma tarefa manualmente, por host.",
+        "hide": 0,
+        "skipUrlSync": false,
+        "options": [
+          {
+            "text": "15",
+            "value": "15",
+            "selected": true
+          }
+        ]
+      },
+      {
+        "type": "query",
+        "name": "time_area",
+        "label": "👥 Time",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "aap-controller-db"
+        },
+        "query": "SELECT DISTINCT regexp_replace(l.name, '^time[:=]', '') FROM main_label l JOIN main_unifiedjobtemplate_labels ujtl ON ujtl.label_id = l.id WHERE l.name ~ '^time[:=]' ORDER BY 1",
+        "definition": "SELECT DISTINCT regexp_replace(l.name, '^time[:=]', '') FROM main_label l JOIN main_unifiedjobtemplate_labels ujtl ON ujtl.label_id = l.id WHERE l.name ~ '^time[:=]' ORDER BY 1",
+        "description": "Filtra por label `time:<valor>`",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".+",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": [],
+        "hide": 0,
+        "skipUrlSync": false,
+        "allowCustomValue": true
+      },
+      {
+        "type": "query",
+        "name": "dominio",
+        "label": "🌐 Domínio",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "aap-controller-db"
+        },
+        "query": "SELECT DISTINCT regexp_replace(l.name, '^dominio[:=]', '') FROM main_label l JOIN main_unifiedjobtemplate_labels ujtl ON ujtl.label_id = l.id WHERE l.name ~ '^dominio[:=]' ORDER BY 1",
+        "definition": "SELECT DISTINCT regexp_replace(l.name, '^dominio[:=]', '') FROM main_label l JOIN main_unifiedjobtemplate_labels ujtl ON ujtl.label_id = l.id WHERE l.name ~ '^dominio[:=]' ORDER BY 1",
+        "description": "Filtra por label `dominio:<valor>`",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".+",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": [],
+        "hide": 0,
+        "skipUrlSync": false,
+        "allowCustomValue": true
+      },
+      {
+        "type": "query",
+        "name": "criticidade",
+        "label": "🚨 Criticidade",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "aap-controller-db"
+        },
+        "query": "SELECT DISTINCT regexp_replace(l.name, '^criticidade[:=]', '') FROM main_label l JOIN main_unifiedjobtemplate_labels ujtl ON ujtl.label_id = l.id WHERE l.name ~ '^criticidade[:=]' ORDER BY 1",
+        "definition": "SELECT DISTINCT regexp_replace(l.name, '^criticidade[:=]', '') FROM main_label l JOIN main_unifiedjobtemplate_labels ujtl ON ujtl.label_id = l.id WHERE l.name ~ '^criticidade[:=]' ORDER BY 1",
+        "description": "Filtra por label `criticidade:<valor>`",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".+",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": [],
+        "hide": 0,
+        "skipUrlSync": false,
+        "allowCustomValue": true
+      },
+      {
+        "type": "query",
+        "name": "ambiente",
+        "label": "🏷️ Ambiente",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "aap-controller-db"
+        },
+        "query": "SELECT DISTINCT regexp_replace(l.name, '^ambiente[:=]', '') FROM main_label l JOIN main_unifiedjobtemplate_labels ujtl ON ujtl.label_id = l.id WHERE l.name ~ '^ambiente[:=]' ORDER BY 1",
+        "definition": "SELECT DISTINCT regexp_replace(l.name, '^ambiente[:=]', '') FROM main_label l JOIN main_unifiedjobtemplate_labels ujtl ON ujtl.label_id = l.id WHERE l.name ~ '^ambiente[:=]' ORDER BY 1",
+        "description": "Filtra por label `ambiente:<valor>`",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".+",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": [],
+        "hide": 0,
+        "skipUrlSync": false,
+        "allowCustomValue": true
+      },
+      {
+        "type": "query",
+        "name": "organization",
+        "label": "🏢 Organização",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "aap-controller-db"
+        },
+        "query": "SELECT name FROM main_organization ORDER BY name",
+        "definition": "SELECT name FROM main_organization ORDER BY name",
+        "description": "",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".+",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": [],
+        "hide": 0,
+        "skipUrlSync": false,
+        "allowCustomValue": true
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 100,
+      "type": "row",
+      "title": "🎯 Visão Executiva — Valor da Automação",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "id": 12,
+      "type": "stat",
+      "title": "💰 Economia Total",
+      "description": "Custo manual evitado menos custo de execução no AAP, no período.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT ROUND(SUM(manual_cost - automated_cost)::numeric, 2) FROM job_meta"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 13,
+      "type": "stat",
+      "title": "📈 Retorno (×)",
+      "description": "Para cada R$1 gasto executando no AAP, evita-se este valor em trabalho manual.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 1,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT ROUND((SUM(manual_cost) / NULLIF(SUM(automated_cost),0))::numeric, 0) FROM job_meta"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:×",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 14,
+      "type": "stat",
+      "title": "⏱️ Horas Economizadas",
+      "description": "Horas de trabalho manual evitadas.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT ROUND(SUM(hours_saved)::numeric, 1) FROM job_meta"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "h",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 15,
+      "type": "gauge",
+      "title": "✅ Taxa de Sucesso",
+      "description": "% de execuções bem-sucedidas no período.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 1,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT ROUND(100.0 * SUM(CASE WHEN status='successful' THEN 1 ELSE 0 END)::numeric / NULLIF(COUNT(*),0), 1) FROM job_meta"
+        }
+      ],
+      "options": {
+        "orientation": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 70,
+                "color": "orange"
+              },
+              {
+                "value": 90,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 16,
+      "type": "stat",
+      "title": "🤖 Jobs Executados",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 5,
+        "h": 3
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT COUNT(*) FROM job_meta"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 17,
+      "type": "stat",
+      "title": "🖥️ Hosts Impactados",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 5,
+        "y": 6,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT COALESCE(SUM(host_count),0) FROM job_meta"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 18,
+      "type": "stat",
+      "title": "📦 Automações Ativas",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 9,
+        "y": 6,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT COUNT(DISTINCT template_id) FROM job_meta"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 19,
+      "type": "stat",
+      "title": "👷 Custo Manual Evitado",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 13,
+        "y": 6,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT ROUND(SUM(manual_cost)::numeric, 2) FROM job_meta"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 20,
+      "type": "stat",
+      "title": "⚙️ Custo Automatizado",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 17,
+        "y": 6,
+        "w": 3,
+        "h": 3
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT ROUND(SUM(automated_cost)::numeric, 2) FROM job_meta"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "yellow"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 21,
+      "type": "stat",
+      "title": "🏷️ Cobertura Taxonomia",
+      "description": "% de templates com as 4 labels (time/dominio/criticidade/ambiente).",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 20,
+        "y": 6,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH labeled AS (\n  SELECT ujtl.unifiedjobtemplate_id AS tid,\n    bool_or(l.name ~ '^time[:=]')        AS t,\n    bool_or(l.name ~ '^dominio[:=]')     AS d,\n    bool_or(l.name ~ '^criticidade[:=]') AS c,\n    bool_or(l.name ~ '^ambiente[:=]')    AS a\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY 1\n),\njt AS (\n  SELECT ujt.id FROM main_unifiedjobtemplate ujt\n  JOIN django_content_type ct ON ct.id = ujt.polymorphic_ctype_id\n  WHERE ct.model IN ('jobtemplate','workflowjobtemplate')\n)\nSELECT ROUND(100.0 * COUNT(*) FILTER (WHERE lb.t AND lb.d AND lb.c AND lb.a)::numeric\n            / NULLIF(COUNT(*),0), 1)\nFROM jt LEFT JOIN labeled lb ON lb.tid = jt.id"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 101,
+      "type": "row",
+      "title": "📈 Tendência de Valor",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "panels": []
+    },
+    {
+      "id": 23,
+      "type": "timeseries",
+      "title": "Curva de Economia Acumulada",
+      "description": "Economia acumulada (R$) ao longo do tempo.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 18,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "time_series",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT date_trunc('day', created) AS time,\n  SUM(SUM(manual_cost - automated_cost)) OVER (ORDER BY date_trunc('day', created)) AS \"Economia acumulada (R$)\"\nFROM job_meta GROUP BY date_trunc('day', created) ORDER BY 1"
+        }
+      ],
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 28,
+            "gradientMode": "opacity",
+            "showPoints": "never",
+            "spanNulls": true,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 24,
+      "type": "stat",
+      "title": "Economia acumulada (total)",
+      "description": "Valor explícito da economia acumulada no período.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 10,
+        "w": 6,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT ROUND(SUM(manual_cost - automated_cost)::numeric, 2) FROM job_meta"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "textMode": "value",
+        "wideLayout": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 25,
+      "type": "timeseries",
+      "title": "Economia Diária (R$)",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 12,
+        "h": 7
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "time_series",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT date_trunc('day', created) AS time,\n  ROUND(SUM(manual_cost - automated_cost)::numeric,2) AS \"Economia do dia (R$)\"\nFROM job_meta GROUP BY 1 ORDER BY 1"
+        }
+      ],
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 28,
+            "gradientMode": "opacity",
+            "showPoints": "never",
+            "spanNulls": true,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 26,
+      "type": "timeseries",
+      "title": "Confiabilidade — Sucesso vs Falha",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 18,
+        "w": 12,
+        "h": 7
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "time_series",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT date_trunc('day', created) AS time,\n  COUNT(*) FILTER (WHERE status='successful')          AS \"Sucesso\",\n  COUNT(*) FILTER (WHERE status IN ('failed','error')) AS \"Falha\"\nFROM job_meta GROUP BY 1 ORDER BY 1"
+        }
+      ],
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 28,
+            "gradientMode": "opacity",
+            "showPoints": "never",
+            "spanNulls": true,
+            "axisPlacement": "auto",
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 102,
+      "type": "row",
+      "title": "💰 Economia por Dimensão de Negócio",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "panels": []
+    },
+    {
+      "id": 28,
+      "type": "piechart",
+      "title": "Economia por Time",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 26,
+        "w": 6,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT time_area AS metric, ROUND(SUM(manual_cost - automated_cost)::numeric, 2) AS value\nFROM job_meta GROUP BY time_area ORDER BY value DESC"
+        }
+      ],
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "pieType": "donut",
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 29,
+      "type": "piechart",
+      "title": "Economia por Domínio",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 26,
+        "w": 6,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT dominio AS metric, ROUND(SUM(manual_cost - automated_cost)::numeric, 2) AS value\nFROM job_meta GROUP BY dominio ORDER BY value DESC"
+        }
+      ],
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "pieType": "donut",
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 30,
+      "type": "piechart",
+      "title": "Economia por Criticidade",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 26,
+        "w": 6,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT criticidade AS metric, ROUND(SUM(manual_cost - automated_cost)::numeric, 2) AS value\nFROM job_meta GROUP BY criticidade ORDER BY value DESC"
+        }
+      ],
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "pieType": "donut",
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 31,
+      "type": "piechart",
+      "title": "Economia por Ambiente",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 26,
+        "w": 6,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT ambiente AS metric, ROUND(SUM(manual_cost - automated_cost)::numeric, 2) AS value\nFROM job_meta GROUP BY ambiente ORDER BY value DESC"
+        }
+      ],
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "pieType": "donut",
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 103,
+      "type": "row",
+      "title": "🧭 ROI, Horas e Confiabilidade — por dimensão",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "panels": []
+    },
+    {
+      "id": 33,
+      "type": "barchart",
+      "title": "📈 Retorno (×) por Time",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 35,
+        "w": 8,
+        "h": 7
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT time_area AS metric,\n  ROUND((SUM(manual_cost) / NULLIF(SUM(automated_cost),0))::numeric, 0) AS value\nFROM job_meta GROUP BY time_area ORDER BY value DESC"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "barWidth": 0.85,
+        "groupWidth": 0.7,
+        "xTickLabelRotation": 0,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:×",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 85,
+            "gradientMode": "hue",
+            "lineWidth": 1,
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 34,
+      "type": "barchart",
+      "title": "📈 Retorno (×) por Criticidade",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 35,
+        "w": 8,
+        "h": 7
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT criticidade AS metric,\n  ROUND((SUM(manual_cost) / NULLIF(SUM(automated_cost),0))::numeric, 0) AS value\nFROM job_meta GROUP BY criticidade ORDER BY value DESC"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "barWidth": 0.85,
+        "groupWidth": 0.7,
+        "xTickLabelRotation": 0,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:×",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 85,
+            "gradientMode": "hue",
+            "lineWidth": 1,
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 35,
+      "type": "bargauge",
+      "title": "✅ Taxa de Sucesso por Time",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 35,
+        "w": 8,
+        "h": 7
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT time_area AS metric,\n  ROUND(100.0 * SUM(CASE WHEN status='successful' THEN 1 ELSE 0 END)::numeric / NULLIF(COUNT(*),0), 1) AS value\nFROM job_meta GROUP BY time_area ORDER BY value DESC"
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "valueMode": "color",
+        "namePlacement": "auto",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 60,
+                "color": "orange"
+              },
+              {
+                "value": 80,
+                "color": "yellow"
+              },
+              {
+                "value": 95,
+                "color": "green"
+              }
+            ]
+          },
+          "max": 100
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 36,
+      "type": "bargauge",
+      "title": "⏱️ Horas Economizadas por Domínio",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 42,
+        "w": 12,
+        "h": 7
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT dominio AS metric, ROUND(SUM(hours_saved)::numeric, 1) AS value\nFROM job_meta GROUP BY dominio ORDER BY value DESC"
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "valueMode": "color",
+        "namePlacement": "auto",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "h",
+          "min": 0,
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 37,
+      "type": "bargauge",
+      "title": "⏱️ Horas Economizadas por Time",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 42,
+        "w": 12,
+        "h": 7
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT time_area AS metric, ROUND(SUM(hours_saved)::numeric, 1) AS value\nFROM job_meta GROUP BY time_area ORDER BY value DESC"
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "valueMode": "color",
+        "namePlacement": "auto",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "h",
+          "min": 0,
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 104,
+      "type": "row",
+      "title": "🏆 Ranking & Decisão",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 49
+      },
+      "panels": []
+    },
+    {
+      "id": 39,
+      "type": "barchart",
+      "title": "🏆 Top 10 Automações por Economia",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 50,
+        "w": 12,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT template_name AS metric, ROUND(SUM(manual_cost - automated_cost)::numeric, 2) AS value\nFROM job_meta WHERE template_name IS NOT NULL\nGROUP BY template_name ORDER BY value DESC NULLS LAST LIMIT 10"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "barWidth": 0.85,
+        "groupWidth": 0.7,
+        "xTickLabelRotation": 0,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 85,
+            "gradientMode": "hue",
+            "lineWidth": 1,
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 40,
+      "type": "table",
+      "title": "📊 Top 10 Automações por Retorno (≥3 execuções)",
+      "description": "Maior multiplicador de retorno sobre o custo de execução.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 50,
+        "w": 12,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT template_name AS \"Automação\",\n  COUNT(*) AS \"Execuções\",\n  ROUND(SUM(manual_cost - automated_cost)::numeric, 2) AS \"Economia (R$)\",\n  ROUND((SUM(manual_cost) / NULLIF(SUM(automated_cost),0))::numeric, 0) AS \"Retorno (×)\"\nFROM job_meta WHERE template_name IS NOT NULL\nGROUP BY template_name HAVING COUNT(*) >= 3\nORDER BY \"Retorno (×)\" DESC NULLS LAST LIMIT 10"
+        }
+      ],
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Economia (R$)"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "currencyBRL"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Retorno (×)"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-BlPu"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "suffix:×"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 41,
+      "type": "table",
+      "title": "🎯 Quadrante de Decisão — Frequência × Economia",
+      "description": "Joia da coroa = roda muito e economiza muito. Escalar = economiza muito mas roda pouco.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 60,
+        "w": 24,
+        "h": 11
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\n, base AS (\n  SELECT template_name, time_area, dominio,\n    COUNT(*) AS freq,\n    SUM(manual_cost - automated_cost) AS saving,\n    ROUND(SUM(hours_saved)::numeric,1) AS horas\n  FROM job_meta WHERE template_name IS NOT NULL\n  GROUP BY template_name, time_area, dominio\n),\nmed AS (\n  SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY freq)   AS f_med,\n         percentile_cont(0.5) WITHIN GROUP (ORDER BY saving) AS s_med\n  FROM base\n)\nSELECT\n  b.template_name AS \"Automação\",\n  b.time_area AS \"Time\", b.dominio AS \"Domínio\",\n  b.freq AS \"Execuções\",\n  ROUND(b.saving::numeric, 2) AS \"Economia (R$)\",\n  b.horas AS \"Horas econ.\",\n  CASE\n    WHEN b.freq >= m.f_med AND b.saving >= m.s_med THEN '👑 Joia da coroa'\n    WHEN b.freq <  m.f_med AND b.saving >= m.s_med THEN '🚀 Escalar'\n    WHEN b.freq >= m.f_med AND b.saving <  m.s_med THEN '🔁 Alto volume / baixo retorno'\n    ELSE '🔍 Revisar'\n  END AS \"Classificação\"\nFROM base b CROSS JOIN med m\nORDER BY b.saving DESC NULLS LAST LIMIT 20"
+        }
+      ],
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Economia (R$)"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "currencyBRL"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Horas econ."
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "h"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 105,
+      "type": "row",
+      "title": "🔥 Matriz de Calor — Time × Domínio",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 71
+      },
+      "panels": []
+    },
+    {
+      "id": 43,
+      "type": "table",
+      "title": "Time × Domínio — execuções / sucesso% / economia",
+      "description": "Onde a automação concentra retorno.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "aap-controller-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 72,
+        "w": 24,
+        "h": 12
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "aap-controller-db"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "WITH team_rates AS (\n  -- custo/minuto por time, vindo da variavel ${custo_por_time} no formato time=valor,time=valor\n  SELECT lower(trim(split_part(kv, '=', 1))) AS time_area,\n         trim(split_part(kv, '=', 2))::numeric AS rate\n  FROM regexp_split_to_table('${custo_por_time}', '\\s*,\\s*') AS kv\n  WHERE kv ~ '^\\s*[^=]+=\\s*[0-9]+(\\.[0-9]+)?\\s*$'\n),\ntemplate_labels AS (\n  SELECT\n    ujtl.unifiedjobtemplate_id AS template_id,\n    MAX(CASE WHEN l.name ~ '^time[:=]'        THEN regexp_replace(l.name, '^time[:=]',        '') END) AS time_area,\n    MAX(CASE WHEN l.name ~ '^dominio[:=]'     THEN regexp_replace(l.name, '^dominio[:=]',     '') END) AS dominio,\n    MAX(CASE WHEN l.name ~ '^criticidade[:=]' THEN regexp_replace(l.name, '^criticidade[:=]', '') END) AS criticidade,\n    MAX(CASE WHEN l.name ~ '^ambiente[:=]'    THEN regexp_replace(l.name, '^ambiente[:=]',    '') END) AS ambiente\n  FROM main_unifiedjobtemplate_labels ujtl\n  JOIN main_label l ON l.id = ujtl.label_id\n  GROUP BY ujtl.unifiedjobtemplate_id\n),\nhost_counts AS (\n  SELECT job_id, COUNT(*) AS host_count\n  FROM main_jobhostsummary\n  GROUP BY job_id\n),\njob_meta AS (\n  SELECT\n    uj.id                          AS job_id,\n    uj.unified_job_template_id     AS template_id,\n    ujt.name                       AS template_name,\n    org.name                       AS organization_name,\n    uj.status,\n    uj.elapsed,\n    uj.created,\n    ct.model                       AS job_type,\n    COALESCE(hc.host_count, 0)     AS host_count,\n    tl.time_area, tl.dominio, tl.criticidade, tl.ambiente,\n    (COALESCE(hc.host_count, 1) * ${manual_time_per_host_minutes} *\n      COALESCE(tr.rate, ${employee_cost_per_minute})) AS manual_cost,\n    (COALESCE(uj.elapsed,0) / 60.0 * ${aap_cost_per_minute})                                      AS automated_cost,\n    GREATEST(\n      (COALESCE(hc.host_count,1) * ${manual_time_per_host_minutes} - COALESCE(uj.elapsed,0) / 60.0) / 60.0,\n      0\n    ) AS hours_saved\n  FROM main_unifiedjob uj\n  JOIN django_content_type ct           ON ct.id = uj.polymorphic_ctype_id\n  LEFT JOIN main_unifiedjobtemplate ujt ON ujt.id = uj.unified_job_template_id\n  LEFT JOIN main_organization org       ON org.id = uj.organization_id\n  LEFT JOIN host_counts hc              ON hc.job_id = uj.id\n  JOIN template_labels tl ON tl.template_id = uj.unified_job_template_id\n   AND tl.time_area IS NOT NULL AND tl.dominio IS NOT NULL\n   AND tl.criticidade IS NOT NULL AND tl.ambiente IS NOT NULL\n  LEFT JOIN team_rates tr               ON tr.time_area = tl.time_area\n  WHERE ct.model IN ('job','workflowjob','adhoccommand')\n    AND uj.status IN ('successful','failed','error','canceled')\n    AND $__timeFilter(uj.created)\n    AND tl.time_area    ~ '${time_area:regex}'\n    AND tl.dominio      ~ '${dominio:regex}'\n    AND tl.criticidade  ~ '${criticidade:regex}'\n    AND tl.ambiente     ~ '${ambiente:regex}'\n    AND COALESCE(org.name, '_sem_org') ~ '${organization:regex}'\n)\n\nSELECT time_area AS \"Time \\\\ Domínio\", dominio,\n  COUNT(*) AS execucoes,\n  ROUND(100.0 * SUM(CASE WHEN status='successful' THEN 1 ELSE 0 END)::numeric / NULLIF(COUNT(*),0), 1) AS sucesso_pct,\n  ROUND(SUM(manual_cost - automated_cost)::numeric, 2) AS economia\nFROM job_meta GROUP BY time_area, dominio ORDER BY economia DESC NULLS LAST"
+        }
+      ],
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "economia"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "currencyBRL"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sucesso_pct"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "id": null
+}

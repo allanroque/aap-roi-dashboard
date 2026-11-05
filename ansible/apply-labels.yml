@@ -1,0 +1,90 @@
+---
+# =====================================================================
+# Aplica a taxonomia de labels (time/dominio/criticidade/ambiente) nos
+# Job Templates e Workflows do Automation Controller (AAP 2.5 / 2.7).
+#
+# Requisitos: collection ansible.controller (vem no EE "supported") e
+#             credenciais via env: CONTROLLER_HOST, CONTROLLER_OAUTH_TOKEN
+#             (ou CONTROLLER_USERNAME/CONTROLLER_PASSWORD), CONTROLLER_VERIFY_SSL
+#
+# Teste primeiro:  ansible-playbook apply-labels.yml -e @vars/labels.yml --check --diff
+# Aplique:         ansible-playbook apply-labels.yml -e @vars/labels.yml
+#
+# ATENCAO: "labels" no modulo e DECLARATIVO -> a lista informada vira a lista final
+#          do template (labels antigas fora da lista sao removidas). Revise o --diff.
+# =====================================================================
+- name: AAP ROI | aplicar taxonomia de labels
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    aap_label_defaults: {}
+    aap_templates: []
+
+  pre_tasks:
+    - name: Montar lista final de labels por template (defaults + especificas)
+      ansible.builtin.set_fact:
+        _tpl: "{{ _tpl | default([]) + [ item | combine({'final_labels': _merged}) ] }}"
+      vars:
+        _merged: "{{ aap_label_defaults | combine(item.labels | default({})) }}"
+      loop: "{{ aap_templates }}"
+      loop_control: { label: "{{ item.name }}" }
+
+    - name: Validar que cada template tem os 4 eixos
+      ansible.builtin.assert:
+        that:
+          - item.final_labels.time is defined
+          - item.final_labels.dominio is defined
+          - item.final_labels.criticidade is defined
+          - item.final_labels.ambiente is defined
+        fail_msg: "{{ item.name }}: faltam eixos em {{ item.final_labels }}"
+      loop: "{{ _tpl }}"
+      loop_control: { label: "{{ item.name }}" }
+
+    - name: Validar vocabulario fechado (se aap_vocab definido)
+      ansible.builtin.assert:
+        that:
+          - item.final_labels.time in aap_vocab.time
+          - item.final_labels.dominio in aap_vocab.dominio
+          - item.final_labels.criticidade in aap_vocab.criticidade
+          - item.final_labels.ambiente in aap_vocab.ambiente
+        fail_msg: "{{ item.name }}: valor fora do vocabulario -> {{ item.final_labels }}"
+      loop: "{{ _tpl }}"
+      loop_control: { label: "{{ item.name }}" }
+      when: aap_vocab is defined
+
+  tasks:
+    - name: Montar pares (template, label) para o loop
+      ansible.builtin.set_fact:
+        _pairs: >-
+          {{ _pairs | default([]) + (item.final_labels | dict2items
+             | map('combine', {'organization': item.organization}) | list) }}
+      loop: "{{ _tpl }}"
+      loop_control: { label: "{{ item.name }}" }
+
+    - name: Garantir que as labels existem na organization dona de cada template
+      ansible.controller.label:
+        name: "{{ item.key }}:{{ item.value }}"
+        organization: "{{ item.organization }}"
+        state: present
+      loop: "{{ _pairs | unique }}"
+      loop_control: { label: "{{ item.organization }} / {{ item.key }}:{{ item.value }}" }
+
+    - name: Aplicar labels nos Job Templates
+      ansible.controller.job_template:
+        name: "{{ item.name }}"
+        organization: "{{ item.organization }}"
+        labels: "{{ item.final_labels | dict2items | map(attribute='key') | zip(item.final_labels.values()) | map('join', ':') | list }}"
+        state: present
+      loop: "{{ _tpl | selectattr('type', 'equalto', 'job_template') | list }}"
+      loop_control: { label: "{{ item.name }}" }
+
+    - name: Aplicar labels nos Workflow Job Templates
+      ansible.controller.workflow_job_template:
+        name: "{{ item.name }}"
+        organization: "{{ item.organization }}"
+        labels: "{{ item.final_labels | dict2items | map(attribute='key') | zip(item.final_labels.values()) | map('join', ':') | list }}"
+        state: present
+      loop: "{{ _tpl | selectattr('type', 'equalto', 'workflow_job_template') | list }}"
+      loop_control: { label: "{{ item.name }}" }

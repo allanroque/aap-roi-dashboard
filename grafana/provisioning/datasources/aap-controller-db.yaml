@@ -1,0 +1,24 @@
+# Datasource do banco do Automation Controller (AAP 2.5 / 2.7)
+# O uid "aap-controller-db" e FIXO: o dashboard aap-roi-executive.json aponta para ele.
+# Valores vem de variaveis de ambiente do container/processo do Grafana (ver compose/.env.example).
+apiVersion: 1
+
+datasources:
+  - name: AAP Controller DB
+    uid: aap-controller-db
+    type: grafana-postgresql-datasource
+    access: proxy
+    url: ${AAP_PG_HOST}:${AAP_PG_PORT}
+    user: ${AAP_PG_USER}
+    isDefault: false
+    editable: false
+    jsonData:
+      database: ${AAP_PG_DATABASE}
+      sslmode: ${AAP_PG_SSLMODE}      # disable | require | verify-ca | verify-full
+      postgresVersion: 1500           # 1500 = PostgreSQL 15 (padrao do AAP 2.5/2.7)
+      timescaledb: false
+      maxOpenConns: 5
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+    secureJsonData:
+      password: ${AAP_PG_PASSWORD}

@@ -1,0 +1,14 @@
+# Provider de dashboards: carrega /etc/grafana/dashboards/*.json na pasta "AAP"
+apiVersion: 1
+
+providers:
+  - name: 'AAP ROI'
+    orgId: 1
+    folder: 'AAP'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 60
+    allowUiUpdates: false        # true = permite editar na UI (edicoes nao voltam para o arquivo)
+    options:
+      path: /etc/grafana/dashboards
+      foldersFromFilesStructure: false
